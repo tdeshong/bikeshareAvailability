@@ -23,14 +23,15 @@ class Producer(object):
         # obj.get()['Body'].read().decode('utf-8')
         text =  obj['Body'].read().decode('utf-8')
 
-        for i in range(10):
-           print("line test: ", text[i])
-           self.producer.send("kiosk", value=text[i])
-           sleep(5)
+#         for i in range(10):
+#            print("line test: ", text[i])
+#            self.producer.send("kiosk", value=text[i])
+#            sleep(5)
 
-        # for line in text:
+        for line in text:
              # message = line.strip().split(",")
-             #  self.producer.send("kiosk", value =line )
+            self.producer.send("kiosk", value =line )
+            sleep(5)
              
 if __name__ == "__main__":
     args = sys.argv
