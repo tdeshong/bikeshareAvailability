@@ -1,8 +1,3 @@
-import pyspark_cassandra
-import pyspark_cassandra.streaming
-
-from pyspark_cassandra import CassandraSparkContext
-
 from pyspark.sql import SQLContext
 from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
@@ -11,30 +6,25 @@ from uuid import uuid1
 
 import json
 
+class Streamer(object):
+    #takes in a list of brokers
+    def __init__(self, topic, broker):
+        self.sc = SparkContent().getOrCreate()
+        self.ssc = StreamingContext(self.sc,2)
 
+        self.stream= KafkaUtils.createDirectStream(self.ssc, [topic],\
+                                 {“metadata.broker.list”: broker})
 
-def Consumer(object):
-    def __init__(self, name,topic, broker):
-        sc = CassandraSparkContext(conf=conf)
-        sql = SQLContext(sc)
-        ssc = StreamingContext(sc, 1)
-        # sc = SparkContent(appName = name)
-        # ssc = StreamingContext(sc,2)
-        kafkaStream= KafkaUtils.createDirectStream(ssc, [topic],\
-                                 {“metadata.broker.list”: brokers})
+    # more processing will happen at a later date
+    def process_stream(self):
+        self.initialize_stream()
+        self.stream =(self.stream.map(lambda x:loads(x[1])))
 
+    def run(self):
+        self.process_stream()
+        self.ssc.start()
+        self.ssc.awaitTermination(timeout=180)
 
-    parsed = kafkaStream.map(lambda v: json.loads(v[1]))
-    #after this line is where you do your processing
-    #variable name for this is processing is summed
-    #then the thing summed you can save to Cassandra
-    #but figure out when/where to create keyspace and make table
-    summed.saveToCassandra(KEYSPACE, TABLENAME)
-
-
-# need this to start the streams
-ssc.start()
-ssc.awaitTermination(timeout=180)
 
 if __name__ == "__main__:
     args = sys.argv
