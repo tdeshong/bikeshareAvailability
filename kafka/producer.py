@@ -9,30 +9,52 @@ class Producer(object):
         self.producer = KafkaProducer(bootstrap_servers =[addr], \
                                   value_serializer = lambda x: dumps(x).encode('utf-8'))
 
-        self.schema = {"tripduration"
-        
+        self.schema = {
+            "DELIMITER":  ",",
+            "FIELDS":
+            {
+                "tripduration": {"index": 0, "type": "str"},
+                "starttime":   {"index": 1, "type": "str"},
+                "stoptime": {"index": 2, "type": "str"},
+                "start station":  {"index": 4, "type": "str"},
+                "end station":   {"index": 8, "type": "str"},
+                "bikeid":   {"index": 11, "type": "str"}
+            }
         }
 
-        
+    def map_schema(line, schema):
+    """
+    cleans the message msg, leaving only the fields given by schema, and casts the appropriate types
+    returns None if unable to parse
+    :type line  : str       message to parse
+    :type schema: dict      schema that contains the fields to filter
+    :rtype      : dict      message in the format {"field": value}
+    """
+    try:
+        msg = line.split(schema["DELIMITER"])
+        msg = {key:eval("%s(\"%s\")" % (schema["FIELDS"][key]["type"],
+                                    msg[schema["FIELDS"][key]["index"]]))
+                        for key in schema["FIELDS"].keys()}
+    except:
+        return
+    return msg
+
     def producer_msgs(self):
         s3 = boto3.client('s3')
         obj = s3.get_object(Bucket="citibikes-data-bucket", Key= "test/kiosk.csv")
-        print ("the object in the s3: " , obj)
-        print ("***************************************************")
-        # read csv into bytes?
-        # obj.get()['Body'].read().decode('utf-8')
         text =  obj['Body'].read().decode('utf-8')
 
-#         for i in range(10):
-#            print("line test: ", text[i])
-#            self.producer.send("kiosk", value=text[i])
-#            sleep(5)
+        # for i in range(10):
+        #    print("line test: ", text[i])
+        #    self.producer.send("kiosk", value=text[i])
+        #    sleep(5)
 
         for line in text:
-             # message = line.strip().split(",")
-            self.producer.send("kiosk", value =line )
-            sleep(5)
-             
+           message = line.strip()
+           msg = map_schema(message, self.schema)
+           self.producer.send("kiosk", value =msg)
+           sleep(5)
+
 if __name__ == "__main__":
     args = sys.argv
     print("sys arg values: ", sys.argv)
