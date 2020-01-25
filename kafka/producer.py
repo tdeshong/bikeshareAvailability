@@ -30,29 +30,26 @@ class Producer(object):
     :type schema: dict      schema that contains the fields to filter
     :rtype      : dict      message in the format {"field": value}
     """
-    try:
-        msg = line.split(schema["DELIMITER"])
-        msg = {key:eval("%s(\"%s\")" % (schema["FIELDS"][key]["type"],
+        try:
+            msg = line.split(schema["DELIMITER"])
+            msg = {key:eval("%s(\"%s\")" % (schema["FIELDS"][key]["type"],
                                     msg[schema["FIELDS"][key]["index"]]))
                         for key in schema["FIELDS"].keys()}
-    except:
-        return
-    return msg
+        except:
+            return
+        return msg
 
     def producer_msgs(self):
         s3 = boto3.client('s3')
-        obj = s3.get_object(Bucket="citibikes-data-bucket", Key= "test/kiosk.csv")
+        obj = s3.get_object(Bucket="citibikes-data-bucket", Key= ""data/201502-citibike-tripdata.csv"")
         text =  obj['Body'].read().decode('utf-8')
-
-        # for i in range(10):
-        #    print("line test: ", text[i])
-        #    self.producer.send("kiosk", value=text[i])
-        #    sleep(5)
+        #starts after the headers in the csv
+        text = text.split("\n")[1:]
 
         for line in text:
            message = line.strip()
            msg = map_schema(message, self.schema)
-           self.producer.send("kiosk", value =msg)
+           self.producer.send("kiosk", value =dumps(msg)) #, key=self.get_key(msg))
            sleep(5)
 
 if __name__ == "__main__":
