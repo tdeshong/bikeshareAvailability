@@ -25,11 +25,10 @@ class Streamer(object):
 
     # more processing will happen at a later date
     def process_stream(self):
-        #self.initialize_stream()
-        self.stream.pprint()
+        #self.stream.pprint()
         #self.stream.foreachRDD(lambda rdd:rdd.foreachPartition(self.printstream))
-        #convert = self.stream.map(lambda x: x[1])
-        #convert = self.stream.map(lambda x: loads(x[1]))
+        convert = self.stream.map(lambda x: json.loads(x[1]))
+        convert.pprint()
         #test_output.pprint()
 
     def printstream(self, stream):
