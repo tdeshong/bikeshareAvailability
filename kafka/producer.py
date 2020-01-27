@@ -41,10 +41,11 @@ class Producer(object):
 
         for line in text:
            message = line.strip()
+           msgKey ="{}-{}".format(message[1], message[11])
            msg = self.map_schema(message, self.schema)
            print("msg with schema: ", msg)
            # topic set up already in command line
-           self.producer.send("kiosk", value =dumps(msg)) # ,key=self.get_key(msg))
+           self.producer.send("kiosk", value =dumps(msg), key = msgKey) # ,key=self.get_key(msg))
            sleep(5)
 
 if __name__ == "__main__":
