@@ -22,36 +22,52 @@ class Producer(object):
 
     def map_schema(self,line, schema):
         try:
+            print("in the try")
             msg = line.split(schema["DELIMITER"])
-            msg = {key:eval("%s(\"%s\")" % (schema["FIELDS"][key]["type"],
-                                        msg[schema["FIELDS"][key]["index"]]))
-                            for key in schema["FIELDS"].keys()}
+            data ={}
+            for key in schema["FIELDS"]:
+               datatype = schema["FIELDS"][key]["type"]
+               dataIndex = schema["FIELDS"][key]["index"]
+               #noticed that every string came with extra quotes eg. '"X"'
+               data[key]= msg[dataIndex].strip('"')
+
         except:
+            print("whale explains the nonetype")
             return
-        return msg
+        return data
 
 
     def producer_msgs(self):
         s3 = boto3.client('s3')
-        obj = s3.get_object(Bucket="citibikes-data-bucket", Key= "data/201502-citibike-tripdata.csv")
-        text =  obj['Body'].read().decode('utf-8')
-        #starts after the headers in the csv
-        text = text.split("\n")[1:]
+        bucket = "citibikes-data-bucket"
+        prefix ="data"
+        response = s3.list_objects(Bucket = bucket, Prefix = prefix)
 
 
-        for line in text:
-           message = line.strip()
-           msgKey ="{}-{}".format(message[1], message[11])
-           msg = self.map_schema(message, self.schema)
-           print("msg with schema: ", msg)
-           # topic set up already in command line
-           self.producer.send("kiosk", value =dumps(msg), key = msgKey) # ,key=self.get_key(msg))
-           sleep(5)
+        #get iterate through all the files
+        for file in response['Contents']:
+            name = file['Key'].rsplit('/', 1)
+            obj = s3.get_object(Bucket=bucket, Key= prefix+'/'+name[1])
+            text =  obj['Body'].read().decode('utf-8')
+            text = text.split("\n")[1:]
+
+            # get the info in the files
+            for line in text:
+               message = line.strip()
+               msg = self.map_schema(message, self.schema)
+               #convert this to bytes
+               msgKey = name[1].encode('utf-8')
+               # topic set up already in command line
+               self.producer.send("kiosk", value =dumps(msg), key = msgKey)
+               sleep(5)
 
 if __name__ == "__main__":
     args = sys.argv
     print("sys arg values: ", sys.argv)
     ip_addr = str(args[1])
-    # prod =Producer(ip_addr)
+    # throught an error below
+    # ValueError: invalid literal for int() with base 10: '9092,ec2-54-86-226-3.compute-1.amazonaws.com'
+    # addr = ["ec2-34-226-21-253.compute-1.amazonaws.com:9092","ec2-54-86-226-3.compute-1.amazonaws.com:9092"]
+    # prod =Producer(",".join(addr))
     prod = Producer("localhost:9092")
     prod.producer_msgs()
