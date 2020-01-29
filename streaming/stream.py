@@ -42,7 +42,8 @@ if __name__ == "__main__":
     args = sys.argv
     print ("Streams args: ", args)
     topic = "kiosk"
-    broker =["ip-10-0-0-9:9092","ip-10-0-0-11:9092", "ip-10-0-0-4:9092"]
+    broker = ["ec2-34-226-21-253.compute-1.amazonaws.com:9092","ec2-54-86-226-3.compute-1.amazonaws.com:9092"]
+    #broker =["ip-10-0-0-9:9092","ip-10-0-0-11:9092", "ip-10-0-0-4:9092"]
     # bikes = Streamer(topic)
     bikes = Streamer(topic, broker)
     bikes.run()
