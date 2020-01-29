@@ -1,7 +1,3 @@
-import pyspark_cassandra
-import pyspark_cassandra.streaming
-
-from pyspark_cassandra import CassandraSparkContext
 import sys
 from pyspark.sql import SQLContext
 from pyspark import SparkContext, SparkConf
