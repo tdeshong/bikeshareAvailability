@@ -14,18 +14,66 @@ class Streamer(object):
         self.sc = SparkContext()
         self.ssc = StreamingContext(self.sc,2)
         self.sc.setLogLevel("ERROR")
+        #made spark bc i need it to create a dataframe
+        self.spark = SparkSession.builder.master('local').getOrCreate()
+        self.url = 'jdbc:postgresql://localhost:5432/'
+        self.properties = {'driver': 'org.postgresql.Driver',
+                      'user': 'postgres',
+                      'password': ''}
         #this does not work but in many examples
         #broker = self._kafkaTestUtils.brokerAddress()
-        #print("brokers list: ", broke)
         self.stream= KafkaUtils.createDirectStream(self.ssc, ["kiosk"],{"metadata.broker.list":",".join(broker)})
+    
+    def readyForDB(self, anRDD, something):
+        schema1 = StructType([StructField("bike_id", IntegerType(), False),\
+                             StructField("locationStart", StringType(), True), \
+                             StructField("locationEnd", StringType(), True),\
+                             StructField("Starttime", TimestampType(),True),\
+                             StructField("Stoptime", TimestampType(),True),\
+                             StructField("tripduration", IntegerType(), True)])
 
+        schema = StructType([StructField("bike_id", IntegerType(), True),\
+                             StructField("location", StringType(), True), \
+                             StructField("time", TimestampType(),True),\
+                             StructField("out", BooleanType(), True)])
+
+        df = self.spark.createDataFrame(something, schema1)
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        df.write.jdbc(url=self.url, table='test', mode='append', properties=self.properties)
+        #wrote to database it says
+        return df
+    
     # more processing will happen at a later date
     def process_stream(self):
-        #self.stream.pprint()
-        #self.stream.foreachRDD(lambda rdd:rdd.foreachPartition(self.printstream))
+        #self.initialize_stream()
         convert = self.stream.map(lambda x: json.loads(x[1]))
         convert.pprint()
+        #convert.foreachRDD(print)
+        convert.foreachRDD(self.readyForDB)
+        #self.sc.parallelize(convert).toDF().foreachPartition(printstream)
+        #convert.foreachRDD(lambda rdd: self.readyForDB(rdd))
+        # print("convert type: ", type(convert))
+        # print("one convert type: ", convert[0])
+        #convert should be a dictionary so the information should be associated with the 
+        # key in each  one
+        #split the dictionary
+        #col = ["id", "bike_id", "location", "out"]
+        #rdd  =sc.parallelize(convert)
         #test_output.pprint()
+        # convert = self.stream.map(lambda x: json.loads(x[1]))
+        # convert.pprint()
+        # splitInfo = convert.map(lambda i: (i["bikeid"], i["start station"], i["starttime"], True)\
+#                                         (i["bikeid"], i["end station"], i["stoptime"], False))
+        # print("splitInfo: ", splitInfo)
+        # print("**************************************")
+        #splitInfo=[]
+        #for i in convert:
+        #    splitInfo.append(i["bikeid"], i["start station"], i["starttime"], True)
+         #   splitInfo.append(i["bikeid"], i["end station"], i["stoptime"], False)
+
+        # rdd =self.sc.parallelize(splitInfo)
+        # df = self.readyForDB(rdd)
+        # df.write.jdbc(url=url, table='bikes.data', mode='append', properties=properties)
 
     def printstream(self, stream):
         print(stream)
