@@ -16,15 +16,26 @@ class Streamer(object):
         self.sc.setLogLevel("ERROR")
         #made spark bc i need it to create a dataframe
         self.spark = SparkSession.builder.master('local').getOrCreate()
-        self.url = 'jdbc:postgresql://localhost:5432/'
+        self.url = 'jdbc:postgresql://ec2-18-210-209-145.compute-1.amazonaws.com:5432/bikeshare'
         self.properties = {'driver': 'org.postgresql.Driver',
-                      'user': 'postgres',
-                      'password': ''}
+                      'user': 'ubuntu',
+                      'password': '123'}
+        self.schema1 = StructType([StructField("tripduration", StringType(), False),\
+                             StructField("Starttime", StringType(), True), \
+                             StructField("Stoptime", StringType(), True),\
+                             StructField("locationStart", StringType(),True),\
+                             StructField("startLat", StringType(),True),\
+                             StructField("startLong", StringType(),True),\
+                             StructField("locationEnd", StringType(),True),\
+                             StructField("endLat", StringType(),True),\
+                             StructField("endLong", StringType(),True),\
+                             StructField("bike_id", StringType(), True)])
         #this does not work but in many examples
         #broker = self._kafkaTestUtils.brokerAddress()
         self.stream= KafkaUtils.createDirectStream(self.ssc, ["kiosk"],{"metadata.broker.list":",".join(broker)})
     
     def readyForDB(self, anRDD, something):
+        schema2 = ['bike_id', 'locationStart', 'locationEnd', 'Starttime', 'Stoptime', 'tripduration']
         schema1 = StructType([StructField("bike_id", IntegerType(), False),\
                              StructField("locationStart", StringType(), True), \
                              StructField("locationEnd", StringType(), True),\
@@ -36,44 +47,35 @@ class Streamer(object):
                              StructField("location", StringType(), True), \
                              StructField("time", TimestampType(),True),\
                              StructField("out", BooleanType(), True)])
+        #rdd `something` not iterable
+        #df = self.sc.parallelize(something).toDF(schema1)
+        try:
+            df = self.spark.createDataFrame(something, self.schema1) 
+            print("df: ", df)
+            df = df.withColumn("tripduration", df["tripduration"].cast(IntegerType()))
+            df = df.withColumn("bike_id", df["bike_id"].cast(IntegerType()))
+            #df.select(to_date(df.Starttime))
+            #df.select(to_date(df.Stoptime))
+            df.write.jdbc(url=self.url, table='test3', mode='append', properties=self.properties).save()
+        except AttributeError:
+            pass
 
-        df = self.spark.createDataFrame(something, schema1)
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        df.write.jdbc(url=self.url, table='test', mode='append', properties=self.properties)
-        #wrote to database it says
-        return df
     
-    # more processing will happen at a later date
+     # more processing will happen at a later date
     def process_stream(self):
-        #self.initialize_stream()
-        convert = self.stream.map(lambda x: json.loads(x[1]))
-        convert.pprint()
-        #convert.foreachRDD(print)
-        convert.foreachRDD(self.readyForDB)
-        #self.sc.parallelize(convert).toDF().foreachPartition(printstream)
-        #convert.foreachRDD(lambda rdd: self.readyForDB(rdd))
-        # print("convert type: ", type(convert))
-        # print("one convert type: ", convert[0])
-        #convert should be a dictionary so the information should be associated with the 
-        # key in each  one
-        #split the dictionary
-        #col = ["id", "bike_id", "location", "out"]
-        #rdd  =sc.parallelize(convert)
-        #test_output.pprint()
-        # convert = self.stream.map(lambda x: json.loads(x[1]))
-        # convert.pprint()
-        # splitInfo = convert.map(lambda i: (i["bikeid"], i["start station"], i["starttime"], True)\
-#                                         (i["bikeid"], i["end station"], i["stoptime"], False))
-        # print("splitInfo: ", splitInfo)
-        # print("**************************************")
-        #splitInfo=[]
-        #for i in convert:
-        #    splitInfo.append(i["bikeid"], i["start station"], i["starttime"], True)
-         #   splitInfo.append(i["bikeid"], i["end station"], i["stoptime"], False)
+           #no need to encode because python3 handles it
+       convert = self.stream.map(lambda x: json.loads(x[1]))
+       convert.pprint()
+       convert.foreachRDD(self.readyForDB)
 
-        # rdd =self.sc.parallelize(splitInfo)
-        # df = self.readyForDB(rdd)
-        # df.write.jdbc(url=url, table='bikes.data', mode='append', properties=properties)
+#        convert.write.jdbc(url=self.url, table='cititest', mode='append', properties=self.properties)
+        # df.write.format('jdbc')\
+        #        .option('url', self.url)\
+        #        .option('dbtable', 'citi')\
+        #        .option('user', 'ubuntu')\
+        #        .option('password','123')\
+        #        .option('driver','org.postgresql.Driver')\
+        #        .mode('append').save()
 
     def printstream(self, stream):
         print(stream)
