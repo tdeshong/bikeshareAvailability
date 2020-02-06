@@ -56,25 +56,65 @@ class Streamer(object):
 
             return org
 
+    def readyLoc(self, df):
+       #'''
+        #the location database contains many duplication of location bc the producer
+        #is duplicating the records .
+       #'''
+
+        try:
+            #creating new dataframe from the start and end locations 
+            df1 =df.select("locationStart", "latLongStart")
+            df1 = df1.withColumnRenamed("locationStart", "street").withColumnRenamed("latLongStart","coordinates")
+
+            df2 =df.select("locationEnd", "latLongEnd")
+            df2 = df2.withColumnRenamed("locationStart", "street").withColumnRenamed("latLongStart","coordinates")
+            both = df1.union(df2)
+            #tried ignore for mode  and it did nothing to the database
+            both.write.jdbc(url=self.url, table='location', mode='append', properties=self.properties).save()   
+            
+            #x = org.collect()[0][10]
+            #self.write('location','latLongStart', x)
+            #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            #print(org.collect()[0][11])
+            #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            #if self.write('location','latLongStart'
+            #read the databse to see if these things are already in there
+            #what is item bc several things need to be checked
+            # if self.write('location',item):
+               # df =org.select("locationStart", "latLongStart")
+               #change name of the columns
+               # df=df.selectExpr("locationStart as street", "latLongStart as coordinates")
+               # df.write.jdbc(url=self.url, table='location', mode='append', properties=self.properties).save()
+
+
+            org.write.jdbc(url=self.url, table='test3', mode='append', properties=self.properties).save()
+        except AttributeError:
+            pass
     
-     # more processing will happen at a later date
+     def write(self, table, timing, item):
+        ''' returns boolean for if you can write to the database or not
+        '''
+        locExist = False
+        if table =='location':
+           #if throws an error put () outside the string
+           if locExist:
+               query = '(select * from location where "{}" = "{}") as foo'.format(timing,item)
+               loc =self.spark.read.jdbc(url=self.url, table = query, properties = self.properties)
+               loc.pprint()
+               print(loc)
+           #some conditional for if it does not have it
+           #make the data
+
+ #wrote to database it says
+        #return df
+
+    # more processing will happen at a later date
     def process_stream(self):
-           #no need to encode because python3 handles it
+       #no need to encode because python3 handles it
        convert = self.stream.map(lambda x: json.loads(x[1]))
        convert.pprint()
-       convert.foreachRDD(self.readyForDB)
-
-#        convert.write.jdbc(url=self.url, table='cititest', mode='append', properties=self.properties)
-        # df.write.format('jdbc')\
-        #        .option('url', self.url)\
-        #        .option('dbtable', 'citi')\
-        #        .option('user', 'ubuntu')\
-        #        .option('password','123')\
-        #        .option('driver','org.postgresql.Driver')\
-        #        .mode('append').save()
-
-    def printstream(self, stream):
-        print(stream)
+       convert.foreachRDD(self.ready)
 
 
     def run(self):
