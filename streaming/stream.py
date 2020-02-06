@@ -20,7 +20,7 @@ class Streamer(object):
         self.properties = {'driver': 'org.postgresql.Driver',
                       'user': 'ubuntu',
                       'password': '123'}
-        self.schema1 = StructType([StructField("tripduration", StringType(), False),\
+        self.original = StructType([StructField("tripduration", StringType(), False),\
                              StructField("Starttime", StringType(), True), \
                              StructField("Stoptime", StringType(), True),\
                              StructField("locationStart", StringType(),True),\
@@ -34,31 +34,27 @@ class Streamer(object):
         #broker = self._kafkaTestUtils.brokerAddress()
         self.stream= KafkaUtils.createDirectStream(self.ssc, ["kiosk"],{"metadata.broker.list":",".join(broker)})
     
+    def ready (self, anRDD, something):
+       x = self.readyForDB(anRDD, something)
+       self.readyLoc(x)
+    
     def readyForDB(self, anRDD, something):
-        schema2 = ['bike_id', 'locationStart', 'locationEnd', 'Starttime', 'Stoptime', 'tripduration']
-        schema1 = StructType([StructField("bike_id", IntegerType(), False),\
-                             StructField("locationStart", StringType(), True), \
-                             StructField("locationEnd", StringType(), True),\
-                             StructField("Starttime", TimestampType(),True),\
-                             StructField("Stoptime", TimestampType(),True),\
-                             StructField("tripduration", IntegerType(), True)])
+            org = self.spark.createDataFrame(something, self.original)
 
-        schema = StructType([StructField("bike_id", IntegerType(), True),\
-                             StructField("location", StringType(), True), \
-                             StructField("time", TimestampType(),True),\
-                             StructField("out", BooleanType(), True)])
-        #rdd `something` not iterable
-        #df = self.sc.parallelize(something).toDF(schema1)
-        try:
-            df = self.spark.createDataFrame(something, self.schema1) 
-            print("df: ", df)
-            df = df.withColumn("tripduration", df["tripduration"].cast(IntegerType()))
-            df = df.withColumn("bike_id", df["bike_id"].cast(IntegerType()))
-            #df.select(to_date(df.Starttime))
-            #df.select(to_date(df.Stoptime))
-            df.write.jdbc(url=self.url, table='test3', mode='append', properties=self.properties).save()
-        except AttributeError:
-            pass
+            #casting columns to the appropriate type
+            org = org.withColumn("tripduration", org["tripduration"].cast(IntegerType()))
+            org = org.withColumn("bike_id", org["bike_id"].cast(IntegerType()))
+            org = org.withColumn("startLat", org["startLat"].cast(DoubleType()))
+            org = org.withColumn("startLong", org["startLong"].cast(DoubleType()))
+            org = org.withColumn("endLat", org["endLat"].cast(DoubleType()))
+            org = org.withColumn("endLong", org["endLong"].cast(DoubleType()))
+
+            #create extra columns with the lat and long combined in an array
+            #f is an alias for pyspark.sql.function
+            org = org.withColumn("latLongStart", f.array("startLat","startLong"))
+            org = org.withColumn("latLongEnd", f.array("endLat", "endLong"))
+
+            return org
 
     
      # more processing will happen at a later date
