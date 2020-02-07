@@ -10,13 +10,13 @@ import json
 class Streamer(object):
     #figure out how to use session with kafkautils
     #takes in a list of brokers
-    def __init__(self, topic, broker):
+    def __init__(self, topic, broker, postgresaddress):
         self.sc = SparkContext()
         self.ssc = StreamingContext(self.sc,2)
         self.sc.setLogLevel("ERROR")
         #made spark bc i need it to create a dataframe
         self.spark = SparkSession.builder.master('local').getOrCreate()
-        self.url = 'jdbc:postgresql://ec2-18-210-209-145.compute-1.amazonaws.com:5432/bikeshare'
+        self.url = 'jdbc:postgresql://{}:5432/bikeshare'.format(postgresaddress)
         self.properties = {'driver': 'org.postgresql.Driver',
                       'user': 'ubuntu',
                       'password': '123'}
@@ -37,6 +37,7 @@ class Streamer(object):
     def ready (self, anRDD, something):
        x = self.readyForDB(anRDD, something)
        self.readyLoc(x)
+       self.readyRecords(x)
     
     def readyForDB(self, anRDD, something):
             org = self.spark.createDataFrame(something, self.original)
@@ -71,29 +72,32 @@ class Streamer(object):
             df2 = df2.withColumnRenamed("locationStart", "street").withColumnRenamed("latLongStart","coordinates")
             both = df1.union(df2)
             #tried ignore for mode  and it did nothing to the database
-            both.write.jdbc(url=self.url, table='location', mode='append', properties=self.properties).save()   
-            
-            #x = org.collect()[0][10]
-            #self.write('location','latLongStart', x)
-            #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-            #print(org.collect()[0][11])
-            #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-            #if self.write('location','latLongStart'
-            #read the databse to see if these things are already in there
-            #what is item bc several things need to be checked
-            # if self.write('location',item):
-               # df =org.select("locationStart", "latLongStart")
-               #change name of the columns
-               # df=df.selectExpr("locationStart as street", "latLongStart as coordinates")
-               # df.write.jdbc(url=self.url, table='location', mode='append', properties=self.properties).save()
+            both.write.jdbc(url=self.url, table='location', mode='append', properties=self.properties).save()
+        except AttributeError:
+            pass
+        
+     def readyRecords(self, df): 
+        try:
+           df1 = df.select("bike_id","Starttime", "latLongStart")
+#           print(df1.collect())
+           df1 = df1.withColumnRenamed("Starttime", "time").withColumnRenamed("latLongStart","loc")
+#           print(df1.collect())
+           df1 =df1.withColumn("status", f.lit(False))
+           print(df1.collect())
 
-
-            org.write.jdbc(url=self.url, table='test3', mode='append', properties=self.properties).save()
+           df2 = df.select("bike_id","Stoptime", "latLongEnd")
+           df2 = df2.withColumnRenamed("Stoptime", "time").withColumnRenamed("latLongEnd","coordinates")
+           df2 =df2.withColumn("status", f.lit(True))
+           both = df1.union(df2)
+           print(both.collect())
+           both.write.jdbc(url=self.url, table='records', mode='append', properties=self.properties).save()
         except AttributeError:
             pass
     
      def write(self, table, timing, item):
-        ''' returns boolean for if you can write to the database or not
+        ''' 
+        function not in use
+        returns boolean for if you can write to the database or not
         '''
         locExist = False
         if table =='location':
@@ -128,8 +132,6 @@ if __name__ == "__main__":
     args = sys.argv
     print ("Streams args: ", args)
     topic = "kiosk"
-    broker = ["ec2-34-226-21-253.compute-1.amazonaws.com:9092","ec2-54-86-226-3.compute-1.amazonaws.com:9092"]
-    #broker =["ip-10-0-0-9:9092","ip-10-0-0-11:9092", "ip-10-0-0-4:9092"]
-    # bikes = Streamer(topic)
+    broker = "have to make secret"
     bikes = Streamer(topic, broker)
     bikes.run()
