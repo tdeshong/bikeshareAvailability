@@ -5,12 +5,21 @@ from json import dumps
 from kafka import KafkaProducer
 
 class Producer(object):
+    '''
+    Creates a Kafka Producer object and sends rows of information from csv
+    files in s3 bucket to Kafka consumer
+    '''
     def __init__(self, addr):
+        '''
+        addr --> list of public ip addresses
+        '''
         self.producer = KafkaProducer(bootstrap_servers =[addr], \
                                   value_serializer = lambda x: dumps(x).encode('utf-8'))
-
-        self.fields = ['bike_id', 'starttime', 'stoptime', 'start station',
-                       'startLat', 'startLong', 'end station','endLat', 'endLong', 'tripduration']
+        
+        #debating if this should be arguments for the Prducer object or just extra information provided
+        #later for map_schema
+        self.fields = ['bike_id', 'starttime', 'stoptime', 'start station','startLat',
+                       'startLong', 'end station','endLat', 'endLong', 'tripduration']
         self.schema = {
             "DELIMITER":  ",",
             "FIELDS":
@@ -26,34 +35,53 @@ class Producer(object):
                 "end station":   {"index": 8, "type": "str"},
                 "bike_id":   {"index": 11, "type": "int"}}}
 
-    def map_schema(self,line, schema):
+    def map_schema(self,line, schema, fields):
+        '''
+        Parameters: line   --> row of csv as a string
+                    schema --> see __init__ for details
+                    fields --> see __init__ for details
+
+        Returns: list of desired columns from row
+
+        schema --> dictionary with schema
+                     { "DELIMITER": delimiter as str
+                       "FIELDS"   : {"column name1": {"INDEX": number as int}
+                                     "column name2": {"INDEX": number as int}
+                                     ...
+                                    }
+                     }
+        field --> list of field keys in the desired order that the information
+                  should be sent to the consumer
+        '''
         try:
-            msg = line.split(self.schema["DELIMITER"])
+            msg = line.split(schema["DELIMITER"])
             print ("msg: ", msg)
             data =[]
-            for key in self.fields:
+            for key in fields:
                print("key: ", key)
-               datatype = self.schema["FIELDS"][key]["type"]
-               dataIndex = self.schema["FIELDS"][key]["index"]
+               datatype = schema["FIELDS"][key]["type"]
+               dataIndex = schema["FIELDS"][key]["index"]
                #noticed that every string came with extra quotes eg. '"X"'
                print("the info: ", msg[dataIndex])
+               #strip items of quotations
                info = msg[dataIndex].strip('"')
                print("stripped info: ", info)
                data.append(info)
-
-                #msg = {key:eval("%s(\"%s\")" % (schema["FIELDS"][key]["type"],
-                 #                       msg[schema["FIELDS"][key]["index"]]))
-                  #          for key in schema["FIELDS"].keys()}
         except:
             print("whale explains the nonetype")
             return
         return data
 
 
-    def producer_msgs(self):
+    def producer_msgs(self, bucket, prefix, topic):
+        '''
+        Gets all the files from bucket/prefix and sends each row as a messages
+        with the desired schema to the consumer
+        '''
+
         s3 = boto3.client('s3')
-        bucket = "citibikes-data-bucket"
-        prefix ="data"
+        #bucket = "citibikes-data-bucket"
+        #prefix ="data"
         response = s3.list_objects(Bucket = bucket, Prefix = prefix)
 
 
@@ -62,16 +90,18 @@ class Producer(object):
             name = file['Key'].rsplit('/', 1)
             obj = s3.get_object(Bucket=bucket, Key= prefix+'/'+name[1])
             text =  obj['Body'].read().decode('utf-8')
+            #skips row with header
             text = text.split("\n")[1:]
 
             # get the info in the files
             for line in text:
                message = line.strip()
-               msg = self.map_schema(message, self.schema)
+               msg = self.map_schema(message, self.schema,self.fields)
                #convert this to bytes
                msgKey = name[1].encode('utf-8')
-               # topic set up already in command line
-               self.producer.send("kiosk", value =dumps(msg), key = msgKey)
+               # topic set up already in command line for kafka
+               # self.producer.send("kiosk", value =dumps(msg), key = msgKey)
+               self.producer.send(topic, value=dumps(msg), key =msgKey)
                sleep(5)
 
 if __name__ == "__main__":
