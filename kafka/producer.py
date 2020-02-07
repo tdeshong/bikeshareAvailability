@@ -9,28 +9,41 @@ class Producer(object):
         self.producer = KafkaProducer(bootstrap_servers =[addr], \
                                   value_serializer = lambda x: dumps(x).encode('utf-8'))
 
+        self.fields = ['bike_id', 'starttime', 'stoptime', 'start station',
+                       'startLat', 'startLong', 'end station','endLat', 'endLong', 'tripduration']
         self.schema = {
             "DELIMITER":  ",",
             "FIELDS":
             {
-                "tripduration": {"index": 0, "type": "str"},
+                "tripduration":{"index":0, "type": "str"},
                 "starttime":   {"index": 1, "type": "str"},
                 "stoptime": {"index": 2, "type": "str"},
                 "start station":  {"index": 4, "type": "str"},
+                "startLat" :{"index":5, "type": "str"},
+                "startLong": {"index":6,  "type": "str"},
+                "endLat": {"index":9,  "type": "str"},
+                "endLong":{"index":10, "type": "str"},
                 "end station":   {"index": 8, "type": "str"},
-                "bikeid":   {"index": 11, "type": "str"}}}
+                "bike_id":   {"index": 11, "type": "int"}}}
 
     def map_schema(self,line, schema):
         try:
-            print("in the try")
-            msg = line.split(schema["DELIMITER"])
-            data ={}
-            for key in schema["FIELDS"]:
-               datatype = schema["FIELDS"][key]["type"]
-               dataIndex = schema["FIELDS"][key]["index"]
+            msg = line.split(self.schema["DELIMITER"])
+            print ("msg: ", msg)
+            data =[]
+            for key in self.fields:
+               print("key: ", key)
+               datatype = self.schema["FIELDS"][key]["type"]
+               dataIndex = self.schema["FIELDS"][key]["index"]
                #noticed that every string came with extra quotes eg. '"X"'
-               data[key]= msg[dataIndex].strip('"')
+               print("the info: ", msg[dataIndex])
+               info = msg[dataIndex].strip('"')
+               print("stripped info: ", info)
+               data.append(info)
 
+                #msg = {key:eval("%s(\"%s\")" % (schema["FIELDS"][key]["type"],
+                 #                       msg[schema["FIELDS"][key]["index"]]))
+                  #          for key in schema["FIELDS"].keys()}
         except:
             print("whale explains the nonetype")
             return
@@ -65,9 +78,6 @@ if __name__ == "__main__":
     args = sys.argv
     print("sys arg values: ", sys.argv)
     ip_addr = str(args[1])
-    # throught an error below
-    # ValueError: invalid literal for int() with base 10: '9092,ec2-54-86-226-3.compute-1.amazonaws.com'
-    # addr = ["ec2-34-226-21-253.compute-1.amazonaws.com:9092","ec2-54-86-226-3.compute-1.amazonaws.com:9092"]
-    # prod =Producer(",".join(addr))
-    prod = Producer("localhost:9092")
+    addr = "put in secrets the 1 broker"
+    prod =Producer(addr)
     prod.producer_msgs()
