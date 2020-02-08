@@ -8,8 +8,11 @@ import json
 
 
 class Streamer(object):
-    #figure out how to use session with kafkautils
-    #takes in a list of brokers
+    '''
+    Gets messages from the Kafka Brokers and splits message into two entries
+    to simulate the information coming in as near real time entries and inserts
+    the split messages into tables into postgres database
+    '''
     def __init__(self, topic, broker, postgresaddress):
         self.sc = SparkContext()
         self.ssc = StreamingContext(self.sc,2)
