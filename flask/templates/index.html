@@ -10,7 +10,10 @@
     <body>
 
     <h1>Test</h1>
-
+    <form method ="POST" action ={{url_for("index")}}>
+    Location: <input type="text" name= "location"  placeholder="location">
+    <input type="submit" value="search">
+    </form>
     <article>
         <ol>
             {% for dock in base %}
@@ -21,4 +24,5 @@
     {% include "map.html" %}
     </body>
 </html>
+
 
