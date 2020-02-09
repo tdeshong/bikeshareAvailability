@@ -4,12 +4,13 @@ import folium
 
 app = Flask(__name__)
 
-
-#change this later
+#change this
 db= 'bikeshare'
 
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 def index():
+    if request.method == 'POST':
+        print(request.form["location"], type(request.form["location"]))
     conn = database.getConn(db)
     all = database.sample(conn)
     #now = servertime.now()
@@ -22,7 +23,9 @@ def index():
 #    return folium_map._repr_html_()
     return render_template('index.html',  base=all)
 
+#def neighbors()
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run('0.0.0.0',5000)
-
