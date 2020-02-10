@@ -2,10 +2,9 @@ import sys
 import psycopg2
 
 
-
-#pass everything as one long string
-
-#db should fill in with dbname instead of test2
+'''
+Database api that queries bike location from postgres database
+'''
 def getConn(db):
     conn = psycopg2.connect("host= ec2-18-210-209-145.compute-1.amazonaws.com dbname=bikeshare user=ubuntu password=123")
 #    conn.autocommit(True)
@@ -18,7 +17,12 @@ def sample(conn):
     return curs.fetchall()
 
 def findNeighbors(conn, time, location):
-    #columns will be returned as a dictionary
+    '''
+    parameters: time --> current time
+                location --> [latitude, longtitude]
+    return list of dock locations in the radius of 0.007 degrees
+           in latitude and longtitude
+    '''
     curs = conn.cursor()
     latUpper = location[0]+0.007
     latLower = location[0]-0.007
@@ -33,6 +37,10 @@ def findNeighbors(conn, time, location):
     return curs.fetchall()
 
 def slots(conn, time):
+    '''
+    paramter: time --> current time
+    return list of locations of all the available bike docks
+    '''
     curs = conn.cursor()
     curs.execute('''Select distinct(c1.loc) from 
                 (select * from records a1 inner join 
