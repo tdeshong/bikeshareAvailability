@@ -55,17 +55,12 @@ class Producer(object):
         '''
         try:
             msg = line.split(schema["DELIMITER"])
-            print ("msg: ", msg)
             data =[]
             for key in fields:
-               print("key: ", key)
                datatype = schema["FIELDS"][key]["type"]
                dataIndex = schema["FIELDS"][key]["index"]
-               #noticed that every string came with extra quotes eg. '"X"'
-               print("the info: ", msg[dataIndex])
-               #strip items of quotations
+               #strip items of extra quotations
                info = msg[dataIndex].strip('"')
-               print("stripped info: ", info)
                data.append(info)
         except:
             print("whale explains the nonetype")
@@ -80,8 +75,6 @@ class Producer(object):
         '''
 
         s3 = boto3.client('s3')
-        #bucket = "citibikes-data-bucket"
-        #prefix ="data"
         response = s3.list_objects(Bucket = bucket, Prefix = prefix)
 
 
@@ -97,10 +90,7 @@ class Producer(object):
             for line in text:
                message = line.strip()
                msg = self.map_schema(message, self.schema,self.fields)
-               #convert this to bytes
                msgKey = name[1].encode('utf-8')
-               # topic set up already in command line for kafka
-               # self.producer.send("kiosk", value =dumps(msg), key = msgKey)
                self.producer.send(topic, value=dumps(msg), key =msgKey)
                sleep(5)
 
