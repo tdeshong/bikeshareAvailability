@@ -16,7 +16,6 @@ class Streamer(object):
         self.sc = SparkContext()
         self.ssc = StreamingContext(self.sc,2)
         self.sc.setLogLevel("ERROR")
-        #made spark bc i need it to create a dataframe
         self.spark = SparkSession.builder.master('local').getOrCreate()
         self.url = 'jdbc:postgresql://{}:5432/bikeshare'.format(postgresaddress)
         self.properties = {'driver': 'org.postgresql.Driver',
@@ -32,8 +31,7 @@ class Streamer(object):
                              StructField("endLat", StringType(),True),\
                              StructField("endLong", StringType(),True),\
                              StructField("bike_id", StringType(), True)])
-        #this does not work but in many examples
-        #broker = self._kafkaTestUtils.brokerAddress()
+        
         self.stream= KafkaUtils.createDirectStream(self.ssc, ["kiosk"],{"metadata.broker.list":",".join(broker)})
     
     def insert(self, time, anRDD):
