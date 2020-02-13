@@ -3,7 +3,6 @@ from pyspark.sql import SQLContext
 from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
-from uuid import uuid1
 import json
 
 
