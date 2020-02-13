@@ -1,4 +1,4 @@
-from flask import (Flask, url_for, flash, render_template, request, jsonify)
+from flask import (Flask, flash, render_template, request)
 import database
 import folium
 from geopy.geocoders import Nominatim
