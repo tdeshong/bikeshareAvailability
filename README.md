@@ -22,7 +22,7 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
 Pipeline
 -----------------
 
-![alt text](https://github.com/tdeshong/bikeshareAvailability/blob/master/pic/pipeline.jpg)
+![alt text](https://github.com/tdeshong/bikeshareAvailability/blob/master/pic/pipeline.png)
 
 ## Environment Setup
 python 3.5
