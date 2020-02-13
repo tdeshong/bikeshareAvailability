@@ -15,15 +15,18 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
 - Flask Node
 
 ### Kafka Setup
-pip install boto3 and kafka-python
+pip install `boto3` and `kafka-python`
 
 Create Kafka topics using this command line
+
 `kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor <rep-factor> --partitions <num-partitions> --topic <topic-name>`
 
 And use this command line to check that Kafka topic and partitions are as expected
+
 `kafka-topics.sh --describe --zookeeper localhost:2181 --topic <topic-name>`
 
 Used this command lne to test if Kafka consumer was receiving the messages from the Kafka producer before connecting Spark Streams to Kafka producer
+
 `kafka-console-consumer.sh --zookeeper localhost:2181 --from-beginning --topic <topic-name>`
 
 run the bash script `spawn_kafka_streams.sh` to kick off kafka producer
@@ -39,7 +42,9 @@ The PostgreSQL database sits on its own ec2 instance.
 the configurations in postgresql.conf and pg_hba.conf to allow the other ec2 instances to access the database
 
 ### Flask Setup
-pip install psycopg2 for the database api to query from postgres
-pip install folium for map in the html
-pip install geopy.geocoders to convert addresses in number street name form to latitude and longditude
+pip install `psycopg2` for the database api to query from postgres
+
+pip install `folium` for map in the html
+
+pip install `geopy.geocoders` to convert addresses in number street name form to latitude and longditude
 
