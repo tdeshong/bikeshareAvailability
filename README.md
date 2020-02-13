@@ -4,6 +4,20 @@ The goal of this project is for bikeshare customer to have near real time inform
 
 This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records of when bikes leave and enter docks which are in csv files stored in an S3 bucket.
 
+## Repo directory structure
+
+    ├── README.md
+    ├── flask
+    │   └── app.py
+    │   └── database.py
+    │   ├── templates
+    │         └── index.html
+    ├── kaka
+    │   └── producer.py
+    │   └── spawn_kafka_streams.sh
+    │  
+    └── streaming
+        └── stream.py
 
 ## Environment Setup
 
