@@ -1,4 +1,4 @@
-# Bikeshare Availability \n
+# Bikeshare Availability
 
 ### DataSource
 
