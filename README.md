@@ -1,8 +1,12 @@
 # Bikeshare Availability
 
-The goal of this project is for bikeshare customer to have near real time information on the availability status of bikeshare docks. 
+The goal of this project is for bikeshare customer to have near real time information on the availability status of bikeshare docks.
 
 This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records of when bikes leave and enter docks which are in csv files stored in an S3 bucket.
+
+[Demo](https://www.youtube.com/watch?v=QS-lSPjHsqQ)
+
+The Demo shows what the customer
 
 ## Repo directory structure
 
