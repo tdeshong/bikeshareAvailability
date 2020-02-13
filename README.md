@@ -20,7 +20,7 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
         └── stream.py
 
 ## Environment Setup
-
+python 3.5
 ### Cluster Setup
 5 AWS EC2 instances:
 
@@ -50,10 +50,11 @@ Splits messages and puts them in the appropriate tables in postgres
 use of jdbc to insert dataframes into postgres
 
 ### PostgreSQL Setup
-Changed configurations in postgres to change the listening address to allow Spark to write to the database.
-The PostgreSQL database sits on its own ec2 instance.
+Change listening address in `postgresql.conf` from local host to the IP addresses that you would like it to listen to
 
-the configurations in postgresql.conf and pg_hba.conf to allow the other ec2 instances to access the database
+Changed the hosts postgresql is allowed to connect to in `pg_hba.conf` by adding this line to the file
+
+` host    <database>      <user>       0.0.0.0/0        md5`
 
 ### Flask Setup
 pip install `psycopg2` for the database api to query from postgres
