@@ -5,8 +5,8 @@ import psycopg2
 '''
 Database api that queries bike location from postgres database
 '''
-def getConn(db):
-    conn = psycopg2.connect("host= ec2-18-210-209-145.compute-1.amazonaws.com dbname=bikeshare user=ubuntu password=123")
+def getConn(host, db, username, password):
+    conn = psycopg2.connect("host={} dbname={} user={} password={}".format(host, db, username, password))
     return conn
 
 
