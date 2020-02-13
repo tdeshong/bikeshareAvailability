@@ -12,15 +12,16 @@ class Streamer(object):
     to simulate the information coming in as near real time entries and inserts
     the split messages into tables into postgres database
     '''
-    def __init__(self, topic, broker, postgresaddress):
+    def __init__(self, topic, broker, postgresaddress, database):
         self.sc = SparkContext()
         self.ssc = StreamingContext(self.sc,2)
         self.sc.setLogLevel("ERROR")
         self.spark = SparkSession.builder.master('local').getOrCreate()
-        self.url = 'jdbc:postgresql://{}:5432/bikeshare'.format(postgresaddress)
+        self.url = 'jdbc:postgresql://{}:5432/{}'.format(postgresaddress, database)
         self.properties = {'driver': 'org.postgresql.Driver',
                       'user': 'ubuntu',
                       'password': '123'}
+        #schema for the dataframe the message would go into 
         self.original = StructType([StructField("tripduration", StringType(), False),\
                              StructField("Starttime", StringType(), True), \
                              StructField("Stoptime", StringType(), True),\
@@ -77,8 +78,6 @@ class Streamer(object):
         creates dataframe with 2 columns: street name and an array with latitude and longtitude
         inserts the dataframe into the location table in the database
         '''
-
-
         try:
             #creating new dataframe from the start and end locations
             df1 =df.select("locationStart", "latLongStart")
