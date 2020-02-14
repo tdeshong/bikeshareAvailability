@@ -8,8 +8,8 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
 ## Table of Contents
 1. [Repo Directory Structure](README.md#Repo-Directory-Structure)
 2. [Pipeline](README.md#Pipeline)
-3. [Approach]
-4. [SetUp](README.md#expected-output)
+3. [Approach](README.md#Approach)
+4. [Evironment SetUp](README.md#Evironment-Setup)
 5. [Demo](README.md#Demo)
 6. [Further Extention](README.md#Further-Extention)
 
@@ -32,7 +32,6 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
         └── stream.py
     
 ## Pipeline
------------------
 
 ![alt text](pic/pipeline.png)
 
@@ -49,19 +48,19 @@ python 3.5
 ### Kafka Setup
 pip install `boto3` and `kafka-python`
 
-Create Kafka topics using this command line
+Create Kafka topics using this command
 
 `kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor <rep-factor> --partitions <num-partitions> --topic <topic-name>`
 
-And use this command line to check that Kafka topic and partitions are as expected
+Check that Kafka topic and partitions are as expected using this command 
 
 `kafka-topics.sh --describe --zookeeper localhost:2181 --topic <topic-name>`
 
 Used this command lne to test if Kafka consumer was receiving the messages from the Kafka producer before connecting Spark Streams to Kafka producer
 
-`kafka-console-consumer.sh --zookeeper localhost:2181 --from-beginning --topic <topic-name>`
+`kafka-console-consumer.sh --zookeeper localhost:2181 --topic <topic-name>`
 
-run the bash script `spawn_kafka_streams.sh` to kick off kafka producer
+run the bash script `startProducer.sh` to kick off kafka producer
 
 ### Spark Streaming Setup
 Splits messages and puts them in the appropriate tables in postgres
