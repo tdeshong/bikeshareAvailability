@@ -7,15 +7,14 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
 
 ## Table of Contents
 1. [Repo Directory Structure](README.md#Repo-Directory-Structure)
-1. [The approach](README.md#the-approach)
-1. [Expected output](README.md#expected-output)
-1. [Repo directory structure](README.md#repo-directory-structure)
+2. [Pipeline](README.md#Pipeline)
+3. [Approach]
+4. [SetUp](README.md#expected-output)
+5. [Demo](README.md#Demo)
+6. [Further Extention](README.md#Further-Extention)
 
 
 
-[Demo](https://www.youtube.com/watch?v=QS-lSPjHsqQ)
-
-The Demo shows what the customer
 
 ## Repo Directory Structure
 
@@ -32,7 +31,7 @@ The Demo shows what the customer
     └── streaming
         └── stream.py
     
-Pipeline
+## Pipeline
 -----------------
 
 ![alt text](pic/pipeline.png)
@@ -40,9 +39,10 @@ Pipeline
 ## Environment Setup
 python 3.5
 ### Cluster Setup
-5 AWS EC2 instances:
+8 AWS EC2 instances:
 
-- (3 nodes) Kafka Cluster and Spark Streaming
+- (3 nodes) Kafka Cluster
+- (3 nodes) Spark Streaming
 - Postgres Node
 - Flask Node
 
@@ -81,4 +81,11 @@ pip install `folium` for map in the html
 
 pip install `geopy.geocoders` to convert addresses in number street name form to latitude and longditude
 
+## Demo
+[Demo](https://www.youtube.com/watch?v=QS-lSPjHsqQ)
+
+When the customer opens the app they will see blue circles on the New York City map that represent the open docks at that time. They also have the option of searching a location, which will display as a red circle on the map, and blue circles, that represent open docks, in a 3 block radius of the input location would show up on the map. Also there is a flash message if the format of the location is not in the expected format. 
+
+## Further Extention
+Further extention of this project could be choas testing
 
