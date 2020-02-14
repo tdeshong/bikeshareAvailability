@@ -4,11 +4,20 @@ The goal of this project is for bikeshare customer to have near real time inform
 
 This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records of when bikes leave and enter docks which are in csv files stored in an S3 bucket.
 
+
+## Table of Contents
+1. [Repo Directory Structure](README.md#Repo-Directory-Structure)
+1. [The approach](README.md#the-approach)
+1. [Expected output](README.md#expected-output)
+1. [Repo directory structure](README.md#repo-directory-structure)
+
+
+
 [Demo](https://www.youtube.com/watch?v=QS-lSPjHsqQ)
 
 The Demo shows what the customer
 
-## Repo directory structure
+## Repo Directory Structure
 
     ├── README.md
     ├── flask
