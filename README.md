@@ -63,8 +63,9 @@ Used this command lne to test if Kafka consumer was receiving the messages from 
 run the bash script `startProducer.sh` to kick off kafka producer
 
 ### Spark Streaming Setup
-Splits messages and puts them in the appropriate tables in postgres
-use of jdbc to insert dataframes into postgres
+Add JDBC driver to spark class path
+
+`bin/spark-shell --driver-class-path postgresql-9.4.1207.jar --jars postgresql-9.4.1207.jar`
 
 ### PostgreSQL Setup
 Change listening address in `postgresql.conf` from local host to the IP addresses that you would like it to listen to
@@ -74,7 +75,7 @@ Changed the hosts postgresql is allowed to connect to in `pg_hba.conf` by adding
 ` host    <database>      <user>       0.0.0.0/0        md5`
 
 ### Flask Setup
-pip install `psycopg2` for the database api to query from postgres
+pip install `psycopg2` to access postgres database
 
 pip install `folium` for map in the html
 
@@ -87,4 +88,5 @@ When the customer opens the app they will see blue circles on the New York City 
 
 ## Further Extention
 Further extention of this project could be choas testing
-
+structured spark stream
+preprocessing with spark before going into kafka
