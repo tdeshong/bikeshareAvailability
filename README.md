@@ -45,6 +45,8 @@ python 3.5
 - Postgres Node
 - Flask Node
 
+### Security Groups
+
 ### Kafka Setup
 pip install `boto3` and `kafka-python`
 
