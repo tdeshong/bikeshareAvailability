@@ -1,6 +1,5 @@
 import boto3
 import sys
-from time import sleep
 from json import dumps
 from kafka import KafkaProducer
 
@@ -19,12 +18,11 @@ class Producer(object):
         #debating if this should be arguments for the Prducer object or just extra information provided
         #later for map_schema
         self.fields = ['bike_id', 'starttime', 'stoptime', 'start station','startLat',
-                       'startLong', 'end station','endLat', 'endLong', 'tripduration']
+                       'startLong', 'end station','endLat', 'endLong']
         self.schema = {
             "DELIMITER":  ",",
             "FIELDS":
             {
-                "tripduration":{"index":0, "type": "str"},
                 "starttime":   {"index": 1, "type": "str"},
                 "stoptime": {"index": 2, "type": "str"},
                 "start station":  {"index": 4, "type": "str"},
@@ -63,7 +61,6 @@ class Producer(object):
                info = msg[dataIndex].strip('"')
                data.append(info)
         except:
-            print("whale explains the nonetype")
             return
         return data
 
