@@ -37,6 +37,8 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
 
 ## Approach
 
+### Dataset
+
 ## Environment Setup
 python 3.5
 ### Cluster Setup
@@ -92,4 +94,4 @@ pip install `geopy.geocoders` to convert addresses in number street name form to
 When the customer opens the app they will see blue circles on the New York City map that represent the open docks at that time. They also have the option of searching a location, which will display as a red circle on the map, and blue circles, that represent open docks, in a 3 block radius of the input location would show up on the map. Also there is a flash message if the format of the location is not in the expected format. 
 
 ## Further Extention
-Further extensions for this project can be replacing Spark Streaming with Structured Streaming, preprocessing the data in spark and putting it in s3 and sending it throught the [pipeline](README.md#Pipeline) and choas testing.
+Further extensions for this project can be replacing Spark Streaming with Structured Streaming, preprocessing the [data](README.md#Dataset) in spark and putting it in s3 before sending it throught the [pipeline](README.md#Pipeline) as well as choas testing.
