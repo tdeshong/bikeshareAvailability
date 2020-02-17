@@ -19,17 +19,17 @@ The dataset is all available [citibike historical bike data](https://www.citibik
 
 ![alt text](pic/pipeline.png)
 
-##### Kafka
+#### Kafka
 producer: 
 The producer ingest the unzipped citibike csv files from my s3 bucket row by row and based on the provided schema, extracts the desired information from the row. It simulates near real time information of the bikes by splitting the information in row into starting information and ending information for the bikes and sending this as two records to the broker.
 
-##### Spark Streaming
+#### Spark Streaming
 Spark Streaming consumes 5 seconds worth messages from the broker as a dstream and distributes them amongst the workers. Each rdd in the dstream gets put into a dataframe and the information is casted based on a schema provided. There are 3 different types of dataframes that get written to 3 corresponding tables in postgres.
 
-##### Postgres
+#### Postgres
 I created a normalized database that contains a records table with columns for time, bike id and location in latitude and longitude, a location table with columns for street name and latitude and longitude and a frequency table which contains columns for the time and the number of bikes that were taken out at that time. 
 
-##### Flask
+#### Flask
 The app.py queries the database, through the API (database.py), to see what the current status of the bike docks are and displays it on the map. If a user enters a correctly formatted location in the text bar, the app queries the bike docks available in a 3 block radius of that location.
 
 
@@ -39,12 +39,11 @@ Python version 3.5
 8 AWS EC2 instances (nodes):
 
 - (3 nodes) Kafka Cluster
-
-         - 3 partitions and 2 replication factors
+  - 3 partitions and 2 replication factors
          
 - (3 nodes) Spark Streaming Cluster
 
-         - 1 master and 2 workers
+   - 1 master and 2 workers
          
 - Postgres Node
 
