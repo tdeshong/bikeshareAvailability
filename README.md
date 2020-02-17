@@ -26,7 +26,7 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
     │         └── index.html
     ├── kaka
     │   └── producer.py
-    │   └── spawn_kafka_streams.sh
+    │   └── startProducer.sh
     │  
     └── streaming
         └── stream.py
@@ -35,17 +35,20 @@ This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records 
 
 ![alt text](pic/pipeline.png)
 
+## Approach
+
 ## Environment Setup
 python 3.5
 ### Cluster Setup
 8 AWS EC2 instances:
 
 - (3 nodes) Kafka Cluster
-- (3 nodes) Spark Streaming
+- (3 nodes) Spark Streaming Cluster
 - Postgres Node
 - Flask Node
 
 ### Security Groups
+The Kafka Cluster and the Spark Streaming Cluster use the computing security group which has traffic from jumphost, itself, ssh and postgres database. The computing security group also has ports open for the Spark Web UI and to the flask security group. The Postgres Node is has ports open to the postgresql, itself, jumphost, computing and ssh. The flask node is open to port 5000, 80 for http and 443 for https and ssh.
 
 ### Kafka Setup
 pip install `boto3` and `kafka-python`
@@ -89,6 +92,4 @@ pip install `geopy.geocoders` to convert addresses in number street name form to
 When the customer opens the app they will see blue circles on the New York City map that represent the open docks at that time. They also have the option of searching a location, which will display as a red circle on the map, and blue circles, that represent open docks, in a 3 block radius of the input location would show up on the map. Also there is a flash message if the format of the location is not in the expected format. 
 
 ## Further Extention
-Further extention of this project could be choas testing
-structured spark stream
-preprocessing with spark before going into kafka
+Further extensions for this project can be replacing Spark Streaming with Structured Streaming, preprocessing the data in spark and putting it in s3 and sending it throught the [pipeline](README.md#Pipeline) and choas testing.
