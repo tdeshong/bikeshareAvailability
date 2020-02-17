@@ -8,9 +8,9 @@ The dataset is all available [citibike historical bike data](https://www.citibik
 
 ## Table of Contents
 1. [Pipeline](README.md#Pipeline)
-2. [Evironment SetUp](README.md#Evironment-Setup)
+2. [Environment Setup](README.md#Evironment-Setup)
 3. [Demo](README.md#Demo)
-4. [Further Extention](README.md#Further-Extention)
+4. [Further Extension](README.md#Further-Extention)
 
     
 ## Pipeline
@@ -69,7 +69,7 @@ Python version 3.5
 
 When the customer opens the app they will see blue circles on the New York City map that represent the open bikeshare docks at that time. They also have the option of searching a location, which will display as a red circle on the map, and the available bikeshare docks in a 3 block radius of that location will appear on the map as blue dots. A flash message will appear on the screen if the customer inputs a location that is not in the format of building number street name such as 1 Park Avenue.
 
-## Further Extention
+## Further Extensions
 Further extensions for this project can be:
 - replacing Spark Streaming with Structured Streaming
 - preprocessing the data in spark and storing it in s3 before sending it through the [pipeline above](README.md#Pipeline)
