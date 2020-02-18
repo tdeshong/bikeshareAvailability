@@ -14,15 +14,23 @@ class Streamer(object):
     to simulate the information coming in as near real time entries and inserts
     the split messages into tables into postgres database
     '''
-    def __init__(self, topic, broker, postgresaddress, database):
+    def __init__(self, topic, broker, postgresaddress, database, masterIP, properties):
+        '''
+        Parameter: topic --> kafka topic (string)
+                   broker --> list of broker IP address as strings
+                   postgresAddress --> postgres database IP address (string)
+                   database --> database name in postgres (string)
+                   masterIP --> IP address for the spark master (string)
+                   properties --> {'driver': 'org.postgresql.Driver',
+                                  'user': username(string),
+                                 'password': password (string)}
+        '''
         self.sc = SparkContext()
         self.ssc = StreamingContext(self.sc,5)
         self.sc.setLogLevel("ERROR")
-        self.spark = SparkSession.builder.master('spark://ec2-52-6-100-31.compute-1.amazonaws.com:7077').getOrCreate()
+        self.spark = SparkSession.builder.master(masterIP+':7077').getOrCreate()
         self.url = 'jdbc:postgresql://{}:5432/{}'.format(postgresaddress, database)
-        self.properties = {'driver': 'org.postgresql.Driver',
-                      'user': 'ubuntu',
-                      'password': '123'}
+        self.properties = properties
         #schema for the dataframe the message would go into 
         self.original = StructType([StructField("bike_id", StringType(), True), 
                                     StructField("time", StringType(), True), \
@@ -122,8 +130,5 @@ class Streamer(object):
 
 if __name__ == "__main__":
     args = sys.argv
-    print ("Streams args: ", args)
-    topic = "kiosk"
-    broker = "have to make secret"
-    bikes = Streamer(topic, broker)
+    bikes = Streamer(topic, broker, postgresaddress, database, masterIP, properties)
     bikes.run()
