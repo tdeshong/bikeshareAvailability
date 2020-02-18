@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = "notverysecret"
 
 
-#change this later
+
 db= 'bikeshare'
 
 @app.route('/bikeshare', methods=["GET", "POST"])
