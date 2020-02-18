@@ -48,7 +48,7 @@ class Streamer(object):
        try: 
            self.sqlContext.registerDataFrameAsTable(df, "temp")
            # query for selecting bikes that are starting a ride
-           freq = self.sqlContext.sql("select time, count(time), status from records group by time, status having status = False")
+           freq = self.sqlContext.sql("select time, count(time) from records group by time, status having status = False")
            freq.write.jdbc(url=self.url, table='frequency', mode='append', properties=self.properties).save()
        except AttributeError:
             pass
