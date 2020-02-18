@@ -31,7 +31,7 @@ class Streamer(object):
                                     StructField("longitude", StringType(),True),\
                                     StructField("status", BooleanType(), True)])
         
-        self.stream= KafkaUtils.createDirectStream(self.ssc, ["kiosk"],{"metadata.broker.list":",".join(broker)})
+        self.stream= KafkaUtils.createDirectStream(self.ssc, [topic],{"metadata.broker.list":",".join(broker)})
     
     def insert(self, time, anRDD):
        '''
@@ -47,7 +47,8 @@ class Streamer(object):
  
        try: 
            self.sqlContext.registerDataFrameAsTable(df, "temp")
-           freq = self.sqlContext.sql("SELECT time, count(time) FROM temp GROUP BY time")
+           # query for selecting bikes that are starting a ride
+           freq = self.sqlContext.sql("select time, count(time), status from records group by time, status having status = False")
            freq.write.jdbc(url=self.url, table='frequency', mode='append', properties=self.properties).save()
        except AttributeError:
             pass
