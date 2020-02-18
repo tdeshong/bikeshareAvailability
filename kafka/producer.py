@@ -95,6 +95,5 @@ if __name__ == "__main__":
                 "end station":   {"index": 8, "type": "str"},
                 "bike_id":   {"index": 11, "type": "int"}}}
     
-    addr = "put in secrets the 1 broker"
     prod =Producer(addr)
     prod.producer_msgs()
