@@ -70,8 +70,8 @@ class Producer(object):
                message = line.strip()
                msg = self.map_schema(message, self.schema,self.fields)
                # split the row into 2 different messages
-               msgStart = [msg[0], msg[1], msg[3], msg[4], msg[5]]
-               msgEnd = [msg[0], msg[2], msg[6], msg[7], msg[8]]
+               msgStart = [msg[0], msg[1], msg[3], msg[4], msg[5], False]
+               msgEnd = [msg[0], msg[2], msg[6], msg[7], msg[8], True]
                msgKey = name[1].encode('utf-8')
                
                self.producer.send(topic, value=dumps(msgStart), key =msgKey)
