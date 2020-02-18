@@ -42,6 +42,11 @@ def index():
        else:
             #put the input location on map with red circle
             street = geolocator.geocode(input)
+            
+            #validation
+            if street == None:
+                flash("Improper Location")
+            
             loc = [street.latitude, street.longitude]
             folium.CircleMarker(location = loc, fill=True, color ='red').add_to(selective)
             
