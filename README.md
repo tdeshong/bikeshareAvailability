@@ -1,10 +1,9 @@
 # Bikeshare Availability
+The goal of this project is to provide bikeshare customer with near real time information on the avaiability status of bikeshare docks and to provide bikeshare admins with analytics on peak times bikes are historically rented.
 
-The goal of this project is for bikeshare customer to have near real time information on the availability status of bikeshare docks.
+This ETL pipeline uses Kafka, Spark Streaming and Postgres and ingest ~8000 records/sec. The [data](https://www.citibikenyc.com/system-data) consists of records of when bikes leave and enter docks which are in csv files stored in an S3 bucket.
 
-This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records of when bikes leave and enter docks which are in csv files stored in an S3 bucket.
-
-The dataset is all available [citibike historical bike data](https://www.citibikenyc.com/system-data)
+dataset: [citibike historical bike data](https://www.citibikenyc.com/system-data)
 
 ## Table of Contents
 1. [Pipeline](README.md#Pipeline)
@@ -19,7 +18,7 @@ The dataset is all available [citibike historical bike data](https://www.citibik
 
 ### Kafka
 producer: 
-The producer fetches the unzipped Citibike csv files from an S3 bucket. It uses a schema to extract the desired information (time, location, etc)  from each row of the file. Although the data from Citibike is actually a batch, the producer simulates near real time information of the bikes by splitting the information in each row into the information related to the start of the bikes journey (start time, start location, etc.) and the information related to the end of the bikes journey (end time, end location, etc.)
+The producer fetches the unzipped Citibike csv files from an S3 bucket. It uses a schema to extract the desired information (time, location, etc)  from each row of the file. Although the data from Citibike is historical, the producer creates near real time records by transforming each row into the information related to the start of the bikes journey (start time, start location, etc.) and the information related to the end of the bikes journey (end time, end location, etc.)
 
 
 ### Spark Streaming
