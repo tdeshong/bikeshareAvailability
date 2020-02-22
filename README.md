@@ -2,9 +2,9 @@
 
 The goal of this project is for bikeshare customer to have near real time information on the availability status of bikeshare docks.
 
-This ETL uses Kafka, Spark Streaming and Postgres. The data consists of records of when bikes leave and enter docks which are in csv files stored in an S3 bucket.
+This ETL pipeline uses Kafka, Spark Streaming and Postgres and ingest ~8000 records/sec. The [data](https://www.citibikenyc.com/system-data) consists of records of when bikes leave and enter docks which are in csv files stored in an S3 bucket.
 
-The dataset is all available [citibike historical bike data](https://www.citibikenyc.com/system-data)
+dataset: [citibike historical bike data](https://www.citibikenyc.com/system-data)
 
 ## Table of Contents
 1. [Pipeline](README.md#Pipeline)
